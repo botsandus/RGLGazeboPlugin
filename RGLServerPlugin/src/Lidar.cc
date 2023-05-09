@@ -200,7 +200,6 @@ ignition::msgs::PointCloudPacked RGLServerPluginInstance::CreatePointCloudMsg(st
         *yIterWorld = res->value[1];
         *zIterWorld = res->value[2];
         *iIterWorld = 100.0;
-
         ++res;
     }
     return outMsg;
