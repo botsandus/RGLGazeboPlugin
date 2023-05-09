@@ -162,6 +162,23 @@ void RGLServerPluginInstance::RayTrace(std::chrono::steady_clock::duration simTi
         return;
     }
 
+    //TODO(AJ): Get Intensity from API
+    /*
+    int32_t ihitpointCount=0;
+    if (!CheckRGL(rgl_graph_get_result_size(rglNodeRaytrace, RGL_FIELD_INTENSITY_F32, &hitpointCounti, nullptr)))
+    {
+        ignerr << "No Intensity field found";
+    }
+
+    if (ihitpointCount){
+
+    resultIntensities.resize(lidarPattern.size());
+
+    if (!CheckRGL(rgl_graph_get_result_data(rglNodeRaytrace, RGL_FIELD_INTENSITY_F32, resultIntensities.data()))) {
+        ignerr << "Failed to get intensity result data from RGL lidar.\n";
+        return;
+    }
+    }*/
     auto msg = CreatePointCloudMsg(frameId, hitpointCount);
     pointCloudPublisher.Publish(msg);
 
@@ -181,13 +198,28 @@ ignition::msgs::PointCloudPacked RGLServerPluginInstance::CreatePointCloudMsg(st
 {
     ignition::msgs::PointCloudPacked outMsg;
     ignition::msgs::InitPointCloudPacked(outMsg, frame, false,
-                                         {{"xyz", ignition::msgs::PointCloudPacked::Field::FLOAT32}});
+                                         {{"xyz", ignition::msgs::PointCloudPacked::Field::FLOAT32},{"intensity",ignition::msgs::PointCloudPacked::Field::FLOAT32}}); 
     outMsg.mutable_data()->resize(hitpointCount * outMsg.point_step());
     outMsg.set_height(1);
     outMsg.set_width(hitpointCount);
 
     ignition::msgs::PointCloudPackedIterator<float> xIterWorld(outMsg, "x");
-    memcpy(&(*xIterWorld), resultPointCloud.data(), hitpointCount * sizeof(rgl_vec3f));
+    ignition::msgs::PointCloudPackedIterator<float> yIterWorld(outMsg, "y");
+    ignition::msgs::PointCloudPackedIterator<float> zIterWorld(outMsg, "z");
+    ignition::msgs::PointCloudPackedIterator<float> iIterWorld(outMsg, "intensity");
+
+    using Iter = std::vector<rgl_vec3f>::const_iterator;
+    Iter res = resultPointCloud.begin();
+
+    for(; xIterWorld != xIterWorld.End(); ++xIterWorld, ++yIterWorld, ++zIterWorld, ++iIterWorld) {
+
+        *xIterWorld = res->value[0];
+        *yIterWorld = res->value[1];
+        *zIterWorld = res->value[2];
+        *iIterWorld = 100.0;
+
+        ++res;
+    }
     return outMsg;
 }
 
