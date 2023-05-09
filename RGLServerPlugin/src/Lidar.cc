@@ -162,23 +162,6 @@ void RGLServerPluginInstance::RayTrace(std::chrono::steady_clock::duration simTi
         return;
     }
 
-    //TODO(AJ): Get Intensity from API
-    /*
-    int32_t ihitpointCount=0;
-    if (!CheckRGL(rgl_graph_get_result_size(rglNodeRaytrace, RGL_FIELD_INTENSITY_F32, &hitpointCounti, nullptr)))
-    {
-        ignerr << "No Intensity field found";
-    }
-
-    if (ihitpointCount){
-
-    resultIntensities.resize(lidarPattern.size());
-
-    if (!CheckRGL(rgl_graph_get_result_data(rglNodeRaytrace, RGL_FIELD_INTENSITY_F32, resultIntensities.data()))) {
-        ignerr << "Failed to get intensity result data from RGL lidar.\n";
-        return;
-    }
-    }*/
     auto msg = CreatePointCloudMsg(frameId, hitpointCount);
     pointCloudPublisher.Publish(msg);
 
