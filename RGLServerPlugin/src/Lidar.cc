@@ -181,13 +181,27 @@ ignition::msgs::PointCloudPacked RGLServerPluginInstance::CreatePointCloudMsg(st
 {
     ignition::msgs::PointCloudPacked outMsg;
     ignition::msgs::InitPointCloudPacked(outMsg, frame, false,
-                                         {{"xyz", ignition::msgs::PointCloudPacked::Field::FLOAT32}});
+                                         {{"xyz", ignition::msgs::PointCloudPacked::Field::FLOAT32},{"intensity",ignition::msgs::PointCloudPacked::Field::FLOAT32}}); 
     outMsg.mutable_data()->resize(hitpointCount * outMsg.point_step());
     outMsg.set_height(1);
     outMsg.set_width(hitpointCount);
 
     ignition::msgs::PointCloudPackedIterator<float> xIterWorld(outMsg, "x");
-    memcpy(&(*xIterWorld), resultPointCloud.data(), hitpointCount * sizeof(rgl_vec3f));
+    ignition::msgs::PointCloudPackedIterator<float> yIterWorld(outMsg, "y");
+    ignition::msgs::PointCloudPackedIterator<float> zIterWorld(outMsg, "z");
+    ignition::msgs::PointCloudPackedIterator<float> iIterWorld(outMsg, "intensity");
+
+    using Iter = std::vector<rgl_vec3f>::const_iterator;
+    Iter res = resultPointCloud.begin();
+
+    for(; xIterWorld != xIterWorld.End(); ++xIterWorld, ++yIterWorld, ++zIterWorld, ++iIterWorld) {
+
+        *xIterWorld = res->value[0];
+        *yIterWorld = res->value[1];
+        *zIterWorld = res->value[2];
+        *iIterWorld = 100.0;
+        ++res;
+    }
     return outMsg;
 }
 
