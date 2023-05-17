@@ -67,8 +67,9 @@ bool RGLServerPluginInstance::LoadConfiguration(const std::shared_ptr<const sdf:
     if (!LidarPatternLoader::Load(sdf, lidarPattern)) {
         return false;
     }
-    // Resize container for result point cloud
+    // Resize container for result point cloud and intensities
     resultPointCloud.resize(lidarPattern.size());
+    resultIntensities.resize(lidarPattern.size());
 
     return true;
 }
@@ -84,10 +85,16 @@ void RGLServerPluginInstance::CreateLidar(ignition::gazebo::Entity entity,
         0, 0, 1, 0
     };
 
+    // set desired fields for API call
+    std::vector<rgl_field_t> yieldFields = { 
+        RGL_FIELD_XYZ_F32,
+        RGL_FIELD_INTENSITY_F32,
+    };
+
     if (!CheckRGL(rgl_node_rays_from_mat3x4f(&rglNodeUseRays, lidarPattern.data(), lidarPattern.size())) ||
         !CheckRGL(rgl_node_rays_transform(&rglNodeLidarPose, &identity)) ||
         !CheckRGL(rgl_node_raytrace(&rglNodeRaytrace, nullptr, lidarRange)) ||
-        !CheckRGL(rgl_node_points_compact(&rglNodeCompact)) ||
+        !CheckRGL(rgl_node_points_yield(&rglNodeYield, yieldFields.data(), yieldFields.size())) ||
         !CheckRGL(rgl_node_points_transform(&rglNodeToLidarFrame, &identity))) {
 
         ignerr << "Failed to create RGL nodes when initializing lidar. Disabling plugin.\n";
@@ -96,8 +103,8 @@ void RGLServerPluginInstance::CreateLidar(ignition::gazebo::Entity entity,
 
     if (!CheckRGL(rgl_graph_node_add_child(rglNodeUseRays, rglNodeLidarPose)) ||
         !CheckRGL(rgl_graph_node_add_child(rglNodeLidarPose, rglNodeRaytrace)) ||
-        !CheckRGL(rgl_graph_node_add_child(rglNodeRaytrace, rglNodeCompact)) ||
-        !CheckRGL(rgl_graph_node_add_child(rglNodeCompact, rglNodeToLidarFrame))) {
+        !CheckRGL(rgl_graph_node_add_child(rglNodeRaytrace, rglNodeYield)) ||
+        !CheckRGL(rgl_graph_node_add_child(rglNodeYield, rglNodeToLidarFrame))) {
         
         ignerr << "Failed to connect RGL nodes when initializing lidar. Disabling plugin.\n";
         return;
@@ -162,12 +169,20 @@ void RGLServerPluginInstance::RayTrace(std::chrono::steady_clock::duration simTi
         return;
     }
 
+    int32_t IhitpointCount = 0;
+    if (!CheckRGL(rgl_graph_get_result_size(rglNodeToLidarFrame, RGL_FIELD_INTENSITY_F32, &IhitpointCount, nullptr)) ||
+        !CheckRGL(rgl_graph_get_result_data(rglNodeToLidarFrame, RGL_FIELD_INTENSITY_F32, resultIntensities.data()))) {
+
+        ignerr << "Failed to get intensity data from RGL lidar.\n";
+        return;
+    }
+
     auto msg = CreatePointCloudMsg(simTime, frameId, hitpointCount);
     pointCloudPublisher.Publish(msg);
 
     if (pointCloudWorldPublisher.HasConnections()) {
         if (!CheckRGL(rgl_graph_get_result_size(rglNodeToLidarFrame, RGL_FIELD_XYZ_F32, &hitpointCount, nullptr)) ||
-            !CheckRGL(rgl_graph_get_result_data(rglNodeCompact, RGL_FIELD_XYZ_F32, resultPointCloud.data()))) {
+            !CheckRGL(rgl_graph_get_result_data(rglNodeYield, RGL_FIELD_XYZ_F32, resultPointCloud.data()))) {
 
             ignerr << "Failed to get visualization data from RGL lidar.\n";
             return;
@@ -192,16 +207,20 @@ ignition::msgs::PointCloudPacked RGLServerPluginInstance::CreatePointCloudMsg(st
     ignition::msgs::PointCloudPackedIterator<float> zIterWorld(outMsg, "z");
     ignition::msgs::PointCloudPackedIterator<float> iIterWorld(outMsg, "intensity");
 
-    using Iter = std::vector<rgl_vec3f>::const_iterator;
-    Iter res = resultPointCloud.begin();
+    using pointIter = std::vector<rgl_vec3f>::const_iterator;
+    pointIter res = resultPointCloud.begin();
+
+    using intensityIter = std::vector<float>::const_iterator;
+    intensityIter resI = resultIntensities.begin();
 
     for(; xIterWorld != xIterWorld.End(); ++xIterWorld, ++yIterWorld, ++zIterWorld, ++iIterWorld) {
 
         *xIterWorld = res->value[0];
         *yIterWorld = res->value[1];
         *zIterWorld = res->value[2];
-        *iIterWorld = 100.0;
+        *iIterWorld = *resI;
         ++res;
+        ++resI;
     }
     return outMsg;
 }
