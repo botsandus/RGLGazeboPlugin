@@ -314,13 +314,9 @@ ignition::msgs::LaserScan RGLServerPluginInstance::CreateLaserScanMsg(std::chron
     outMsg.clear_intensities();
     if (outMsg.ranges_size() != hitpointCount) {
         for (int i=0; i < hitpointCount; ++i) {
-            outMsg.add_ranges(ignition::math::INF_F);
-            outMsg.add_intensities(ignition::math::NAN_F);
+            outMsg.add_ranges(resultDistances[i]);
+            outMsg.add_intensities(resultIntensities[i]);
         }
-    }
-
-    for (unsigned int i = 0; i < hitpointCount; ++i) {
-        outMsg.set_ranges(i, resultDistances[i]);
     }
 
     return outMsg;
