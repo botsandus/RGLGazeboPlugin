@@ -30,7 +30,6 @@ namespace rgl
 bool RGLServerPluginInstance::LoadLaserScanParams(const std::shared_ptr<const sdf::Element>& sdf)
 {
 
-
     if (!sdf->HasElement("pattern_uniform")) {
         ignerr << "LaserScan messages require pattern_uniform element.\n";
         return false;
