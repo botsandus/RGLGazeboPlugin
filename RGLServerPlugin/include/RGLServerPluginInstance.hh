@@ -85,7 +85,7 @@ private:
     std::vector<float> resultDistances;
 
     bool updateOnPausedSim = false;
-    bool publish_laserscan = false;
+    bool publishLaserScan = false;
 
     ignition::gazebo::Entity thisLidarEntity;
     ignition::transport::Node::Publisher pointCloudPublisher;
