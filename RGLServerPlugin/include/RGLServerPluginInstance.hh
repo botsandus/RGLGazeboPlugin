@@ -78,6 +78,7 @@ private:
     float lidarRange;
     std::vector<rgl_mat3x4f> lidarPattern;
     std::vector<rgl_vec3f> resultPointCloud;
+    std::vector<float> resultIntensities;
 
     bool updateOnPausedSim = false;
 
@@ -89,7 +90,7 @@ private:
     rgl_node_t rglNodeUseRays = nullptr;
     rgl_node_t rglNodeLidarPose = nullptr;
     rgl_node_t rglNodeRaytrace = nullptr;
-    rgl_node_t rglNodeCompact = nullptr;
+    rgl_node_t rglNodeYield = nullptr;
     rgl_node_t rglNodeToLidarFrame = nullptr;
 
     std::chrono::steady_clock::duration raytraceIntervalTime;
