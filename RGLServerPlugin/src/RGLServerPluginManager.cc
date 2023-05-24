@@ -13,6 +13,7 @@
 // limitations under the License.
 
 #include <ignition/gazebo/components/SystemPluginInfo.hh>
+#include <ignition/gazebo/components/LaserRetro.hh>
 #include <ignition/plugin/Register.hh>
 
 #include "RGLServerPluginManager.hh"
@@ -50,6 +51,9 @@ void RGLServerPluginManager::PostUpdate(
 
     ecm.EachNew<ignition::gazebo::components::Visual, ignition::gazebo::components::Geometry>
             (std::bind(&RGLServerPluginManager::LoadEntityToRGLCb, this, _1, _2, _3));
+    
+    ecm.EachNew<ignition::gazebo::components::LaserRetro>
+            (std::bind(&RGLServerPluginManager::SetLaserRetro, this, _1, _2));
 
     ecm.EachRemoved<>([&](const ignition::gazebo::Entity& entity)-> bool {
         return UnregisterLidarCb(entity, ecm);});
@@ -58,6 +62,7 @@ void RGLServerPluginManager::PostUpdate(
             (std::bind(&RGLServerPluginManager::RemoveEntityFromRGLCb, this, _1, _2, _3));
 
     UpdateRGLEntityPoses(ecm);
+    // SetLaserRetro(ecm);
 }
 
 }  // namespace rgl
