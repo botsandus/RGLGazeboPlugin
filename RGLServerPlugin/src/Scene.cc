@@ -14,6 +14,7 @@
 
 #include <ignition/gazebo/components/CustomSensor.hh>
 #include <ignition/gazebo/components/Link.hh>
+#include <ignition/gazebo/components/LaserRetro.hh>
 #include <ignition/gazebo/components/SystemPluginInfo.hh>
 
 #include "RGLServerPluginManager.hh"
@@ -131,6 +132,17 @@ bool RGLServerPluginManager::RemoveEntityFromRGLCb(
     return true;
 }
 #pragma clang diagnostic pop
+
+bool RGLServerPluginManager::SetLaserRetro(
+        const ignition::gazebo::Entity& entity,
+        const ignition::gazebo::components::LaserRetro* laser_retro)
+{
+    if (!CheckRGL(rgl_entity_set_laser_retro(entitiesInRgl.at(entity).first, laser_retro->Data()))) {
+        ignerr << "Failed to set Laser Retro for entity (" << entity << ").\n"; 
+        return false;
+    }
+    return true;
+}
 
 void RGLServerPluginManager::UpdateRGLEntityPoses(const ignition::gazebo::EntityComponentManager& ecm)
 {

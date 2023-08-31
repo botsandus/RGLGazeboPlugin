@@ -162,7 +162,7 @@ void RGLServerPluginInstance::CreateLidar(ignition::gazebo::Entity entity,
     // set desired fields for API call
     std::vector<rgl_field_t> yieldFields; 
     yieldFields.push_back(RGL_FIELD_XYZ_F32);
-    yieldFields.push_back(RGL_FIELD_INTENSITY_F32);
+    yieldFields.push_back(RGL_FIELD_LASER_RETRO_F32);
 
     if (publishLaserScan) {
         yieldFields.push_back(RGL_FIELD_DISTANCE_F32);
@@ -262,8 +262,8 @@ void RGLServerPluginInstance::RayTrace(std::chrono::steady_clock::duration simTi
     }
 
     int32_t IhitpointCount = 0;
-    if (!CheckRGL(rgl_graph_get_result_size(rglNodeToLidarFrame, RGL_FIELD_INTENSITY_F32, &IhitpointCount, nullptr)) ||
-        !CheckRGL(rgl_graph_get_result_data(rglNodeToLidarFrame, RGL_FIELD_INTENSITY_F32, resultIntensities.data()))) {
+    if (!CheckRGL(rgl_graph_get_result_size(rglNodeToLidarFrame, RGL_FIELD_LASER_RETRO_F32, &IhitpointCount, nullptr)) ||
+        !CheckRGL(rgl_graph_get_result_data(rglNodeToLidarFrame, RGL_FIELD_LASER_RETRO_F32, resultIntensities.data()))) {
 
         ignerr << "Failed to get intensity data from RGL lidar.\n";
         return;
