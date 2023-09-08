@@ -136,6 +136,10 @@ bool RGLServerPluginInstance::LoadConfiguration(const std::shared_ptr<const sdf:
     topicName = sdf->Get<std::string>(PARAM_TOPIC_ID);
     frameId = sdf->Get<std::string>(PARAM_FRAME_ID);
 
+    sdf::ElementConstPtr horizontal = sdf->FindElement("pattern_uniform")->FindElement("horizontal");
+
+    scanHSamples = horizontal->Get<int>("samples");
+
     if (!LidarPatternLoader::Load(sdf, lidarPattern)) {
         return false;
     }
@@ -329,8 +333,9 @@ ignition::msgs::PointCloudPacked RGLServerPluginInstance::CreatePointCloudMsg(st
                                          {{"xyz", ignition::msgs::PointCloudPacked::Field::FLOAT32},{"intensity",ignition::msgs::PointCloudPacked::Field::FLOAT32}}); 
     outMsg.mutable_data()->resize(hitpointCount * outMsg.point_step());
     *outMsg.mutable_header()->mutable_stamp() = ignition::msgs::Convert(simTime);
-    outMsg.set_height(1);
-    outMsg.set_width(hitpointCount);
+    outMsg.set_height(hitpointCount/scanHSamples);
+    outMsg.set_width(scanHSamples);
+    outMsg.set_row_step(outMsg.point_step() * scanHSamples);
 
     ignition::msgs::PointCloudPackedIterator<float> xIterWorld(outMsg, "x");
     ignition::msgs::PointCloudPackedIterator<float> yIterWorld(outMsg, "y");
