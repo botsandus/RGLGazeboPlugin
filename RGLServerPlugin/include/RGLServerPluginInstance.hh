@@ -86,6 +86,7 @@ private:
 
     bool updateOnPausedSim = false;
     bool publishLaserScan = false;
+    LidarPatternLoader::MessageType publishMessageType = LidarPatternLoader::PointCloudPackedMsg;
 
     ignition::gazebo::Entity thisLidarEntity;
     ignition::transport::Node::Publisher pointCloudPublisher;

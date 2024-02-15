@@ -63,13 +63,13 @@ bool RGLServerPluginInstance::LoadConfiguration(const std::shared_ptr<const sdf:
     lidarRange = sdf->Get<float>(PARAM_RANGE_ID);
     topicName = sdf->Get<std::string>(PARAM_TOPIC_ID);
     frameId = sdf->Get<std::string>(PARAM_FRAME_ID);
-
-    if (!LidarPatternLoader::Load(sdf, lidarPattern)) {
+    publishMessageType = LidarPatternLoader::Load(sdf, lidarPattern);
+    if (!publishMessageType) {
         return false;
     }
 
     // Check for 2d pattern and get LaserScan parameters
-    if (sdf->HasElement("pattern_lidar2d")) {
+    if (publishMessageType == LidarPatternLoader::LaserScanMsg) {
         ignmsg << "Lidar is 2D, switching to publish LaserScan messages";
         publishLaserScan = true;
         resultDistances.resize(lidarPattern.size());

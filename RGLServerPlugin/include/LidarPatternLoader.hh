@@ -29,8 +29,8 @@ class LidarPatternLoader
 public:
     using LoadFuncType = std::function<bool(const sdf::ElementConstPtr&, std::vector<rgl_mat3x4f>&)>;
 
-    static bool Load(const sdf::ElementConstPtr& sdf, std::vector<rgl_mat3x4f>& outPattern);
-
+    static MessageType Load(const sdf::ElementConstPtr& sdf, std::vector<rgl_mat3x4f>& outPattern);
+    enum MessageType {None, PointCloudPackedMsg, LaserScanMsg}; 
 private:
     LidarPatternLoader() {};
 

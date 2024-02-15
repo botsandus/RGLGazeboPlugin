@@ -41,7 +41,15 @@ std::map<std::string, LidarPatternLoader::LoadFuncType> LidarPatternLoader::patt
     {"pattern_lidar2d", std::bind(&LidarPatternLoader::LoadPatternFromLidar2d, _1, _2)}
 };
 
-bool LidarPatternLoader::Load(const sdf::ElementConstPtr& sdf, std::vector<rgl_mat3x4f>& outPattern)
+std::map<std::string, LidarPatternLoader::MessageType> LidarPatternLoader::publishMessageTypes = {
+    {"pattern_uniform",LidarPatternLoader::PointCloudPackedMsg},
+    {"pattern_custom", LidarPatternLoader::PointCloudPackedMsg},
+    {"pattern_preset", LidarPatternLoader::PointCloudPackedMsg},
+    {"pattern_preset_path", LidarPatternLoader::PointCloudPackedMsg},
+    {"pattern_lidar2d", LidarPatternLoader::LaserScanMsg}
+};
+
+MessageType LidarPatternLoader::Load(const sdf::ElementConstPtr& sdf, std::vector<rgl_mat3x4f>& outPattern)
 {
     for (const auto &[patterName, loadFunction]: patternLoadFunctions)
     {
@@ -51,11 +59,11 @@ bool LidarPatternLoader::Load(const sdf::ElementConstPtr& sdf, std::vector<rgl_m
         ignmsg << "Trying to load '" << patterName << "' pattern...\n";
         if (loadFunction(sdf->FindElement(patterName), outPattern)) {
             ignmsg << "Successfully loaded pattern '" << patterName << "'.\n";
-            return true;
+            return publishMessageTypes[patterName];
         }
     }
     ignerr << "Failed to load lidar pattern. See plugin's documentation for available options.\n";
-    return false;
+    return LidarPatternLoader::None;
 }
 
 bool LidarPatternLoader::LoadAnglesAndSamplesElement(const sdf::ElementConstPtr& sdf,
