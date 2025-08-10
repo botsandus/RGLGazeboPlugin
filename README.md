@@ -21,7 +21,7 @@ Key features:
 
 - OS: [Ubuntu 22.04](https://releases.ubuntu.com/jammy/) or [Ubuntu 24.04](https://releases.ubuntu.com/noble/)
 
-- Gazebo: [Harmonic](https://gazebosim.org/docs/harmonic/install)
+- Gazebo: [Inonic](https://gazebosim.org/docs/ionic/install)
 
 - GPU: CUDA-enabled
 
@@ -35,17 +35,17 @@ Key features:
     - Move libraries to the plugin's directories.
       - If Gazebo installed from apt:
         ```shell
-        cp libRobotecGPULidar.so /usr/lib/x86_64-linux-gnu/gz-sim-8/plugins
-        cp libRGLServerPluginInstance.so /usr/lib/x86_64-linux-gnu/gz-sim-8/plugins
-        cp libRGLServerPluginManager.so /usr/lib/x86_64-linux-gnu/gz-sim-8/plugins
-        cp libRGLVisualize.so /usr/lib/x86_64-linux-gnu/gz-sim-8/plugins/gui
+        cp libRobotecGPULidar.so /usr/lib/x86_64-linux-gnu/gz-sim-9/plugins
+        cp libRGLServerPluginInstance.so /usr/lib/x86_64-linux-gnu/gz-sim-9/plugins
+        cp libRGLServerPluginManager.so /usr/lib/x86_64-linux-gnu/gz-sim-9/plugins
+        cp libRGLVisualize.so /usr/lib/x86_64-linux-gnu/gz-sim-9/plugins/gui
         ```
       - If Gazebo installed from the ROS repository ([see](https://gazebosim.org/docs/latest/ros_installation/#installing-the-default-gazebo-ros-pairing)):
         ```shell
-        cp libRobotecGPULidar.so /opt/ros/${ROS_DISTRO}/opt/gz_sim_vendor/lib/gz-sim-8/plugins
-        cp libRGLServerPluginInstance.so /opt/ros/${ROS_DISTRO}/opt/gz_sim_vendor/lib/gz-sim-8/plugins
-        cp libRGLServerPluginManager.so /opt/ros/${ROS_DISTRO}/opt/gz_sim_vendor/lib/gz-sim-8/plugins
-        cp libRGLVisualize.so /opt/ros/${ROS_DISTRO}/opt/gz_sim_vendor/lib/gz-sim-8/plugins/gui
+        cp libRobotecGPULidar.so /opt/ros/${ROS_DISTRO}/opt/gz_sim_vendor/lib/gz-sim-9/plugins
+        cp libRGLServerPluginInstance.so /opt/ros/${ROS_DISTRO}/opt/gz_sim_vendor/lib/gz-sim-9/plugins
+        cp libRGLServerPluginManager.so /opt/ros/${ROS_DISTRO}/opt/gz_sim_vendor/lib/gz-sim-9/plugins
+        cp libRGLVisualize.so /opt/ros/${ROS_DISTRO}/opt/gz_sim_vendor/lib/gz-sim-9/plugins/gui
         ```
     - Or set environment variables:
     ```shell
