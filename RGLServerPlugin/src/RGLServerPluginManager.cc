@@ -76,7 +76,7 @@ void RGLServerPluginManager::PostUpdate(
                 return RemoveEntityFromRGLCb(entity, visual, geometry);
             });
 
-    UpdateRGLEntityTransforms(ecm);
+    UpdateRGLEntityPoses(ecm);
 }
 
 }  // namespace rgl
