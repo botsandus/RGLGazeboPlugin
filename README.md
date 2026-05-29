@@ -30,22 +30,22 @@ Key features:
 ## Installation:
 
 ### Using pre-built libraries
-1. Download libraries from [release](https://github.com/RobotecAI/RGLGazeboPlugin/releases).
-2. Make RGL plugins visible to Gazebo:
+1. Download `RGLGazeboPlugin_ubuntu26.zip` from the [latest release](https://github.com/botsandus/RGLGazeboPlugin/releases) and unzip it. It contains a `RGLServerPlugin/` directory (system plugins + the bundled `libRobotecGPULidar.so`) and a `RGLVisualize/` directory (gui plugin).
+2. Make RGL plugins visible to Gazebo (run from the unzipped directory):
     - Move libraries to the plugin's directories.
       - If Gazebo installed from apt:
         ```shell
-        cp libRobotecGPULidar.so /usr/lib/x86_64-linux-gnu/gz-sim-10/plugins
-        cp libRGLServerPluginInstance.so /usr/lib/x86_64-linux-gnu/gz-sim-10/plugins
-        cp libRGLServerPluginManager.so /usr/lib/x86_64-linux-gnu/gz-sim-10/plugins
-        cp libRGLVisualize.so /usr/lib/x86_64-linux-gnu/gz-sim-10/plugins/gui
+        cp RGLServerPlugin/libRobotecGPULidar.so /usr/lib/x86_64-linux-gnu/gz-sim-10/plugins
+        cp RGLServerPlugin/libRGLServerPluginInstance.so /usr/lib/x86_64-linux-gnu/gz-sim-10/plugins
+        cp RGLServerPlugin/libRGLServerPluginManager.so /usr/lib/x86_64-linux-gnu/gz-sim-10/plugins
+        cp RGLVisualize/libRGLVisualize.so /usr/lib/x86_64-linux-gnu/gz-sim-10/plugins/gui
         ```
       - If Gazebo installed from the ROS repository ([see](https://gazebosim.org/docs/latest/ros_installation/#installing-the-default-gazebo-ros-pairing)):
         ```shell
-        cp libRobotecGPULidar.so /opt/ros/${ROS_DISTRO}/opt/gz_sim_vendor/lib/gz-sim-10/plugins
-        cp libRGLServerPluginInstance.so /opt/ros/${ROS_DISTRO}/opt/gz_sim_vendor/lib/gz-sim-10/plugins
-        cp libRGLServerPluginManager.so /opt/ros/${ROS_DISTRO}/opt/gz_sim_vendor/lib/gz-sim-10/plugins
-        cp libRGLVisualize.so /opt/ros/${ROS_DISTRO}/opt/gz_sim_vendor/lib/gz-sim-10/plugins/gui
+        cp RGLServerPlugin/libRobotecGPULidar.so /opt/ros/${ROS_DISTRO}/opt/gz_sim_vendor/lib/gz-sim-10/plugins
+        cp RGLServerPlugin/libRGLServerPluginInstance.so /opt/ros/${ROS_DISTRO}/opt/gz_sim_vendor/lib/gz-sim-10/plugins
+        cp RGLServerPlugin/libRGLServerPluginManager.so /opt/ros/${ROS_DISTRO}/opt/gz_sim_vendor/lib/gz-sim-10/plugins
+        cp RGLVisualize/libRGLVisualize.so /opt/ros/${ROS_DISTRO}/opt/gz_sim_vendor/lib/gz-sim-10/plugins/gui
         ```
     - Or set environment variables:
     ```shell
