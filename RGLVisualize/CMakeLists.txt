@@ -9,18 +9,15 @@ project(RGLVisualize)
 
 set(CMAKE_AUTOMOC ON)
 
-find_package(gz-cmake3 REQUIRED)
-gz_find_package(gz-msgs10 REQUIRED)
-set(GZ_MSGS_VER ${gz-msgs10_VERSION_MAJOR})
+find_package(gz-cmake REQUIRED)
+gz_find_package(gz-msgs REQUIRED)
+gz_find_package(gz-rendering REQUIRED)
+gz_find_package(gz-gui REQUIRED)
 
-gz_find_package(gz-rendering8 REQUIRED)
-set(GZ_RENDERING_VER ${gz-rendering8_VERSION_MAJOR})
+# Gazebo Jetty (gz-gui 10+) GUI is built against Qt6
+find_package(Qt6 REQUIRED COMPONENTS Core Quick QuickControls2 Widgets)
 
-
-gz_find_package(gz-gui8 REQUIRED)
-set(GZ_GUI_VER ${gz-gui8_VERSION_MAJOR})
-
-QT5_ADD_RESOURCES(resources_RCC RGLVisualize.qrc)
+qt_add_resources(resources_RCC RGLVisualize.qrc)
 
 add_library(RGLVisualize SHARED
     RGLVisualize.cc
@@ -29,9 +26,9 @@ add_library(RGLVisualize SHARED
 
 target_link_libraries(RGLVisualize
     PRIVATE
-    gz-msgs${GZ_MSGS_VER}::gz-msgs${GZ_MSGS_VER}
-    gz-rendering${GZ_RENDERING_VER}::gz-rendering${GZ_RENDERING_VER}
-    gz-gui${GZ_GUI_VER}::gz-gui${GZ_GUI_VER}
+    gz-msgs::gz-msgs
+    gz-rendering::gz-rendering
+    gz-gui::gz-gui
 )
 
 ## Install libraries

@@ -35,7 +35,11 @@
 .idea
 build
 install
+log
 cmake-build-debug
 
 external/*
 !external/CMakeLists.txt
+# Vendored RobotecGPULidar library + API header (committed on purpose)
+!external/rgl/
+!external/rgl/**

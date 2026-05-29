@@ -19,13 +19,13 @@ Key features:
 
 ## Requirements:
 
-- OS: [Ubuntu 22.04](https://releases.ubuntu.com/jammy/) or [Ubuntu 24.04](https://releases.ubuntu.com/noble/)
+- OS: [Ubuntu 26.04](https://releases.ubuntu.com/26.04/)
 
-- Gazebo: [Harmonic](https://gazebosim.org/docs/harmonic/install)
+- Gazebo: [Jetty](https://gazebosim.org/docs/jetty/install) (paired with [ROS 2 Lyrical](https://docs.ros.org/en/lyrical/))
 
 - GPU: CUDA-enabled
 
-- Nvidia Driver: [See RGL requirements](https://github.com/RobotecAI/RobotecGPULidar/tree/v0.21.0#runtime-requirements)
+- Nvidia Driver: R590 or newer (the vendored RGL library is built against NVIDIA OptiX 9.1 / CUDA 12.4; see [RGL runtime requirements](https://github.com/RobotecAI/RobotecGPULidar#runtime-requirements))
 
 ## Installation:
 
@@ -35,17 +35,17 @@ Key features:
     - Move libraries to the plugin's directories.
       - If Gazebo installed from apt:
         ```shell
-        cp libRobotecGPULidar.so /usr/lib/x86_64-linux-gnu/gz-sim-8/plugins
-        cp libRGLServerPluginInstance.so /usr/lib/x86_64-linux-gnu/gz-sim-8/plugins
-        cp libRGLServerPluginManager.so /usr/lib/x86_64-linux-gnu/gz-sim-8/plugins
-        cp libRGLVisualize.so /usr/lib/x86_64-linux-gnu/gz-sim-8/plugins/gui
+        cp libRobotecGPULidar.so /usr/lib/x86_64-linux-gnu/gz-sim-10/plugins
+        cp libRGLServerPluginInstance.so /usr/lib/x86_64-linux-gnu/gz-sim-10/plugins
+        cp libRGLServerPluginManager.so /usr/lib/x86_64-linux-gnu/gz-sim-10/plugins
+        cp libRGLVisualize.so /usr/lib/x86_64-linux-gnu/gz-sim-10/plugins/gui
         ```
       - If Gazebo installed from the ROS repository ([see](https://gazebosim.org/docs/latest/ros_installation/#installing-the-default-gazebo-ros-pairing)):
         ```shell
-        cp libRobotecGPULidar.so /opt/ros/${ROS_DISTRO}/opt/gz_sim_vendor/lib/gz-sim-8/plugins
-        cp libRGLServerPluginInstance.so /opt/ros/${ROS_DISTRO}/opt/gz_sim_vendor/lib/gz-sim-8/plugins
-        cp libRGLServerPluginManager.so /opt/ros/${ROS_DISTRO}/opt/gz_sim_vendor/lib/gz-sim-8/plugins
-        cp libRGLVisualize.so /opt/ros/${ROS_DISTRO}/opt/gz_sim_vendor/lib/gz-sim-8/plugins/gui
+        cp libRobotecGPULidar.so /opt/ros/${ROS_DISTRO}/opt/gz_sim_vendor/lib/gz-sim-10/plugins
+        cp libRGLServerPluginInstance.so /opt/ros/${ROS_DISTRO}/opt/gz_sim_vendor/lib/gz-sim-10/plugins
+        cp libRGLServerPluginManager.so /opt/ros/${ROS_DISTRO}/opt/gz_sim_vendor/lib/gz-sim-10/plugins
+        cp libRGLVisualize.so /opt/ros/${ROS_DISTRO}/opt/gz_sim_vendor/lib/gz-sim-10/plugins/gui
         ```
     - Or set environment variables:
     ```shell
@@ -62,7 +62,7 @@ docker build \
    --target=exporter \
    --output=install .
 ```
-*Note: Build with [ROS Jazzy](https://docs.ros.org/en/jazzy/index.html) using [colcon](https://colcon.readthedocs.io/en/released/)*
+*Note: Build with [ROS Lyrical](https://docs.ros.org/en/lyrical/index.html) using [colcon](https://colcon.readthedocs.io/en/released/)*
 
 #### Manual
 ```shell
@@ -74,18 +74,32 @@ export GZ_SIM_SYSTEM_PLUGIN_PATH=`pwd`/install/RGLServerPlugin:$GZ_SIM_SYSTEM_PL
 export GZ_GUI_PLUGIN_PATH=`pwd`/install/RGLVisualize:$GZ_GUI_PLUGIN_PATH
 ```
 
-#### Using custom build of RobotecGPULidar
+#### RobotecGPULidar library
 
-By default, the `RGLGazebPlugin` downloads `RobotecGPULidar` binaries from [the official release](https://github.com/RobotecAI/RobotecGPULidar/releases). To use your own build of `RobotecGPULidar`, set the following CMake variables when configuring the project:
+By default the plugin uses the `RobotecGPULidar` library vendored in this repository under `external/rgl`
+(`lib/libRobotecGPULidar.so` + `include/rgl/api/core.h`). It is a **core** build (no PCL/ROS2 extensions) with
+`RUNPATH=$ORIGIN`, so it is fully relocatable and only depends on the NVIDIA driver/CUDA runtime — the plugin
+publishes point clouds over Gazebo transport and does not need RGL's ROS2/PCL features.
+
+To use your own build of `RobotecGPULidar`, set the following CMake variables when configuring the project:
 ```shell
 # RGL_CUSTOM_LIBRARY_PATH - Path to the custom RobotecGPULidar library build
 # RGL_CUSTOM_API_HEADER_PATH - Path to the include directory with API headers compatible with the custom library build
 #                              (`include` directory of `RobotecGPULidar` project)
 # Example:
-cmake \
+colcon build --cmake-args \
   -DRGL_CUSTOM_LIBRARY_PATH="$HOME/RobotecGPULidar/build/lib/libRobotecGPULidar.so" \
-  -DRGL_CUSTOM_API_HEADER_PATH="$HOME/RobotecGPULidar/include" \
-  ..
+  -DRGL_CUSTOM_API_HEADER_PATH="$HOME/RobotecGPULidar/include"
+```
+*Note: the API header version must match the library version — `RGLServerPluginManager` checks them at startup and refuses to load on a mismatch.*
+
+To regenerate the vendored library (e.g. after bumping RGL), build a relocatable **core** library and copy it in:
+```shell
+cd RobotecGPULidar
+export OptiX_INSTALL_DIR=/path/to/NVIDIA-OptiX-SDK   # OptiX 9.x
+./setup.py --build-dir build-core --lib-rpath '$ORIGIN'
+cp build-core/lib/libRobotecGPULidar.so <plugin>/external/rgl/lib/
+cp include/rgl/api/core.h               <plugin>/external/rgl/include/rgl/api/
 ```
 
 ## Demo:
