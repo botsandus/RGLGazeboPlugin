@@ -25,7 +25,7 @@ Key features:
 
 - GPU: CUDA-enabled
 
-- Nvidia Driver: R590 or newer (the vendored RGL library is built against NVIDIA OptiX 9.1 / CUDA 12.4; see [RGL runtime requirements](https://github.com/RobotecAI/RobotecGPULidar#runtime-requirements))
+- Nvidia Driver: R570 or newer (the vendored RGL library is built against NVIDIA OptiX 9.0 / CUDA 12.4; see [RGL runtime requirements](https://github.com/RobotecAI/RobotecGPULidar#runtime-requirements))
 
 ## Installation:
 
